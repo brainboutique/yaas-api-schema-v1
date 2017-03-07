@@ -1,0 +1,44 @@
+{
+  "name": "yaas-api-schema-v1",
+  "version": "0.0.4",
+  "description": "TypeScript API client-lib for YAAS Schema based on (fixed) version on Hybris SAP published API RAML, see https://devportal.yaas.io/services/schema/v1/ [Auto-generated using raml-typescript-generator]",
+  "main": "./dist/index.js",
+  "types": "./dist/index",
+  "files": [
+    "dist/*",
+    "typings/**"
+  ],
+  "scripts": {
+    "regen": "raml-typescript-generator schema.raml -o . && npm run build",
+    "prepare": "typings install",
+    "compile": "tsc",
+    "copyLegacy": "copyfiles -f src/*.js dist",
+    "build": "npm run prepare && npm run compile && npm run copyLegacy"
+  },
+  "dependencies": {
+    "@reactivex/rxjs": "^5.2.0",
+    "deep-extend": "^0.4.1",
+    "popsicle": "^5.0.0",
+    "setprototypeof": "^1.0.1",
+    "@types/es6-shim": "^0.31.32"
+  },
+  "devDependencies": {
+    "copyfiles": "^1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brainboutique/yaas-api-schema-v1"
+  },
+  "keywords": [
+    "raml",
+    "yaas",
+    "hybris",
+    "yaas schema"
+  ],
+  "bugs": {
+    "url": "https://github.com/brainboutique/yaas-api-schema-v1/issues"
+  },
+  "homepage": "https://www.yaas-tools.de",
+  "author": "Wilko Hein",
+  "license": "Apache-2.0"
+}

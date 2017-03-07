@@ -1,0 +1,1439 @@
+#%RAML 0.8
+title: YaasApiSchemaV1
+version: v0.1
+mediaType: application/json
+baseUri: https://api.eu.yaas.io/hybris/schema/v1
+securitySchemes:
+# - !include https://api.yaas.io/patterns/v1/security-schema-basic.yaml
+# - !include https://api.yaas.io/patterns/v2/trait-oauth2.yaml
+ #- !include security-scheme-oauth2.yaml
+schemas:
+  - appData: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "type": "array",
+          "title": "App Data",
+          "description": "App Data"
+      }
+  - schemasData: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "definitions": {
+              "schemaMetadata": {
+                  "type": "object",
+                  "properties": {
+                      "id": {
+                          "type": "string"
+                      },
+                      "metadata": {
+                          "type": "object",
+                          "additionalProperties": {
+                              "type": [
+                                  "string"
+                              ]
+                          }
+                      },
+                      "tags": {
+                          "type": "object",
+                          "additionalProperties": {
+                              "type": "array"
+                          }
+                      }
+                  }
+              }
+          },
+          "type": "array",
+          "items": {
+              "$ref": "#/definitions/schemaMetadata"
+          }
+      }
+  - schemasTags: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "definitions": {
+              "schemaMetadata": {
+                  "type": "object",
+                  "properties": {
+                      "id": {
+                          "type": "string"
+                      },
+                      "tags": {
+                          "type": "object",
+                          "additionalProperties": {
+                              "type": "array"
+                          }
+                      }
+                  }
+              }
+          },
+          "type": "object",
+          "required": [
+              "id",
+              "tags"
+          ]
+      }
+  - resourceLocation: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "type": "object",
+          "title": "Resource Location",
+          "description": "Schema for showing location of the new resource.",
+          "properties": {
+              "id": {
+                  "description": "The identifier of the created resource",
+                  "type": "string"
+              },
+              "link": {
+                  "description": "The link to the created resource",
+                  "type": "string",
+                  "format": "uri"
+              }
+          },
+          "required": [
+              "id",
+              "link"
+          ]
+      }
+  - errorMessage: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "title": "error",
+          "description": "Schema for API specified errors.",
+          "type": "object",
+          "properties": {
+              "status": {
+                  "type": "integer",
+                  "description": "original HTTP error code, should be consistent with the response HTTP code",
+                  "minimum": 100,
+                  "maximum": 599
+              },
+              "type": {
+                  "type": "string",
+                  "description": "classification of the error type, lower case with underscore eg validation_failure",
+                  "pattern": "[a-z]+[a-z_]*[a-z]+"
+              },
+              "message": {
+                  "type": "string",
+                  "description": "descriptive error message for debugging"
+              },
+              "moreInfo": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "link to documentation to investigate further and finding support"
+              },
+              "details": {
+                  "type": "array",
+                  "description": "list of problems causing this error",
+                  "items": {
+                      "$schema": "http://json-schema.org/draft-04/schema#",
+                      "title": "errorDetail",
+                      "description": "schema for specific error cause",
+                      "type": "object",
+                      "properties": {
+                          "field": {
+                              "type": "string",
+                              "description": "a bean notation expression specifying the element in request data causing the error, eg product.variants[3].name, this can be empty if violation was not field specific"
+                          },
+                          "type": {
+                              "type": "string",
+                              "description": "classification of the error detail type, lower case with underscore eg missing_value, this value must be always interpreted in context of the general error type.",
+                              "pattern": "[a-z]+[a-z_]*[a-z]+"
+                          },
+                          "message": {
+                              "type": "string",
+                              "description": "descriptive error detail message for debugging"
+                          },
+                          "moreInfo": {
+                              "type": "string",
+                              "format": "uri",
+                              "description": "link to documentation to investigate further and finding support for error detail"
+                          }
+                      },
+                      "required": [
+                          "type"
+                      ]
+                  }
+              }
+          },
+          "required": [
+              "status",
+              "type"
+          ]
+      }
+  - keyValues: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "title": "User metadata for schema",
+          "type": "object",
+          "additionalProperties": {
+              "type": [
+                  "string"
+              ]
+          }
+      }
+  - userMetadata: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "title": "User metadata for schema",
+          "type": "object",
+          "additionalProperties": {
+              "type": [
+                  "string"
+              ]
+          }
+      }
+  - systemUserMetadata: |
+      {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "title": "Metadata for schema which contains both system and user metadata",
+          "type": "object",
+          "properties": {
+              "id": {
+                  "type": "string",
+                  "description": "schema name",
+                  "required": true
+              },
+              "metadata": {
+                  "type": "object",
+                  "description": "user schema metadata",
+                  "required": false,
+                  "additionalProperties": {
+                      "type": [
+                          "string"
+                      ]
+                  }
+              }
+          }
+      }
+traits:
+  - oauth2:
+      usage: Apply this trait to support OAuth 2.0 authentication.
+      description: |
+        Supports OAuth 2.0 for authenticating all API requests.
+
+      headers:
+        Authorization:
+          type: string
+          description: |
+            Used to send a valid OAuth2 access token.
+
+          example: Bearer access_token
+          required: true
+      responses:
+        401:
+          description: |
+            Given request is unauthorized. Bad or expired token. Reauthenticate
+            the user. Any details will be provided within the response payload.
+
+          body:
+            application/json:
+              example: |
+                {
+                    "status": 401,
+                    "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                    "type": "insufficient_credentials",
+                    "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+                }
+              schema: errorMessage
+        403:
+          description: |
+            Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+          body:
+            application/json:
+              example: |
+                {
+                    "status": 403,
+                    "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                    "type": "insufficient_permissions"
+                }
+              schema: errorMessage
+  - paged:
+      usage: |
+        Apply this trait to a method returning a list of entities which should be paged.
+      description: |
+        This trait adds query parameters to the request so that the result can be paginated on the server side.
+        The specified parameters are page number and page size.
+
+      queryParameters:
+        pageNumber:
+          type: integer
+          description: |
+            The page number to be retrieved where the size of the pages must be specified by the pageSize parameter.
+            The number of the first page is 1.
+
+          minimum: 1
+          example: 1
+          default: 1
+          required: false
+        pageSize:
+          type: integer
+          description: |
+            The number of documents being retrieved on the page.
+
+          minimum: 1
+          example: 16
+          default: 16
+          required: false
+      responses:
+        200:
+          description: |
+            Request was successful.
+
+          headers:
+            Link:
+              description: |
+                Link to the current page, the next page and the previous page. Marked accordingly with *rel* **self**, *rel* **next** and *rel* **prev**. The syntax must be conform to [RFC-5988](https://tools.ietf.org/html/rfc5988).
+                The link to the current page (**self**) is required and must be provided always.
+                The link to the next page (**next**) is optional. If not present, the next page is not available, as the current page is the last page of the result.
+                The link to the previous page (**prev**) is optional. If not present, the previous page is not available, as the current page is the first page of the result.
+
+              example: |
+                '<http://sample.com?pageNumber=2&pageSize=10>; rel="self", <http://sample.com?pageNumber=3&pageSize=10>; rel="next"'
+              required: true
+              repeat: true
+              type: string
+              displayName: Link
+        400:
+          description: |
+            Request was syntactically incorrect. Any details will be provided within the response payload.
+
+          body:
+            application/json:
+              example: |
+                {
+                    "status": 400,
+                    "message": "There are validation problems, see details section for more information",
+                    "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html",
+                    "type": "validation_violation",
+                    "details": [
+                        {
+                            "field": "pageNumber",
+                            "message": "must be a positive number",
+                            "type": "invalid_query_parameter"
+                        }
+                    ]
+                }
+              schema: errorMessage
+  - queryable:
+      usage: |
+        Apply this trait to a method returning a list of entities which should be queried.
+      description: |
+        This trait adds query parameters to the request so that the result can be queried and limited.
+
+      queryParameters:
+        q:
+          type: string
+          description: |
+            The simple query criteria based on available fields to limit returned results or a set of modified documents.
+
+          example: |
+            species:dog name:"Clifford"
+
+          required: false
+      responses:
+        400:
+          description: |
+            Request syntactically incorrect. Any details will be provided within the response payload.
+          body:
+            application/json:
+              example: |
+                {
+                    "status": 400,
+                    "message": "There are validation problems, see details section for more information",
+                    "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html",
+                    "type": "validation_violation",
+                    "details": [
+                        {
+                            "field": "q",
+                            "message": "not a valid query",
+                            "type": "invalid_query_parameter"
+                        }
+                    ]
+                }
+              schema: errorMessage
+  - countable:
+      usage: |
+        Apply this to a method which returns the total number of objects fulfilling some criteria.
+
+      description: |
+        This trait adds a query parameter to the request so that the response contains the total number
+        of objects fulfilling the criteria.
+
+      queryParameters:
+        totalCount:
+          type: boolean
+          description: |
+            This parameter requests to return the total number of object in the collection fulfilling
+            the criteria together with the response. This number will be returned in the 'hybris-count'
+            header.
+
+          example: true
+          required: false
+      responses:
+        200:
+          headers:
+            hybris-count:
+              description: |
+                The total number of objects that fulfil the criteria.
+
+              type: integer
+              example: 1000
+              required: false
+              displayName: hybris-count
+        400:
+          description: |
+            Request syntactically incorrect. Any details will be provided within the response payload.
+          body:
+            application/json:
+              example: |
+                {
+                    "status": 400,
+                    "message": "There are validation problems, see details section for more information",
+                    "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html",
+                    "type": "validation_violation",
+                    "details": [
+                        {
+                            "field": "totalCount",
+                            "message": "must be a boolean",
+                            "type": "invalid_query_parameter"
+                        }
+                    ]
+                }
+              schema: errorMessage
+  - updateable:
+      usage: apply to method which may update data and violate index
+      responses:
+        409:
+          description: |
+            Data modification failed. Unique index violation.
+
+          body:
+            application/json:
+              schema: errorMessage
+  - creatable:
+      usage: |
+        apply this to method that create new resources
+
+      responses:
+        201:
+          description: |
+            The request has been fulfilled and resulted in a new resource being created.
+
+          body:
+            application/json:
+              schema: resourceLocation
+          headers:
+            Location:
+              description: |
+                URI of created resource.
+
+              displayName: Location
+              type: string
+/{tenant}:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+  is: [ oauth2 ]
+  get:
+    is: [ paged, countable ]
+    description: |
+      Returns a list, that contains the IDs of the schemas, their tags and metadata. It can be limited by a query on tags or metadata. The 'q' query parameter enables you to specify the conditions. Two types of operators are supported for tags:<br/>
+      - IN - Checks if a tag contains any of the provided values, such as branch:in(apparel, food)<br/>
+      - ALL - The tag must contain all values from the condition, such as branch:all(sport, food) <br/>
+      There is also possibility to filter schema by metadata. In this case the only operator is EQUAL. Values should be quoted!
+      <br/> **Security / Access Control:** <br/>To access this method, an access token must be issued for the tenant with the <b>hybris.schema_view</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    queryParameters:
+      totalCount:
+        type: boolean
+        description: |
+          This parameter requests to return the total number of object in the collection fulfilling
+          the criteria together with the response. This number will be returned in the 'hybris-count'
+          header.
+
+        example: true
+        required: false
+      pageNumber:
+        type: integer
+        description: |
+          The page number to be retrieved where the size of the pages must be specified by the pageSize parameter.
+          The number of the first page is 1.
+
+        minimum: 1
+        example: 1
+        default: 1
+        required: false
+      pageSize:
+        type: integer
+        description: |
+          The number of documents being retrieved on the page.
+
+        minimum: 1
+        example: 16
+        default: 16
+        required: false
+      q:
+        type: string
+        description: |
+          The simple query criteria based on available tags and metadata to limit returned results or a set of modified documents.
+          Metadata values should be quoted.
+
+        example: |
+          branch:in(apparel, food, electronics) title:"UKinvoice"
+
+        required: false
+      sort:
+        type: string
+        description: |
+          The list of keys from user metadata used to sort the results.
+          By default, the column values are sorted in ascending order.
+          Can either be in the form of key or key:asc,key:desc.
+
+        example: |
+          title:asc,description:desc
+
+        required: false
+    responses:
+      200:
+        headers:
+          hybris-count:
+            description: |
+              The total number of objects that fulfil the criteria.
+
+            type: integer
+            example: 1000
+            required: false
+            displayName: hybris-count
+          Link:
+            description: |
+              Link to the current page, the next page and the previous page. Marked accordingly with *rel* **self**, *rel* **next** and *rel* **prev**. The syntax must be conform to [RFC-5988](https://tools.ietf.org/html/rfc5988).
+              The link to the current page (**self**) is required and must be provided always.
+              The link to the next page (**next**) is optional. If not present, the next page is not available, as the current page is the last page of the result.
+              The link to the previous page (**prev**) is optional. If not present, the previous page is not available, as the current page is the first page of the result.
+
+            example: |
+              '<http://sample.com?pageNumber=2&pageSize=10>; rel="self", <http://sample.com?pageNumber=3&pageSize=10>; rel="next"'
+            required: true
+            repeat: true
+            type: string
+            displayName: Link
+        description: Returns schemas IDs, metadata and tags.
+        body:
+          application/json:
+            schema: schemasData
+            example: |
+              [
+                {
+                  "id": "schema1.json",
+                  "metadata": {
+                    "title": "UKinvoice",
+                    "description": "Schema for UK invoice"
+                  },
+                  "tags": {
+                    "branches": [
+                      "apparel",
+                      "electronics",
+                      "food"
+                    ],
+                    "documents": [
+                      "product",
+                      "category"
+                    ]
+                  }
+                }
+              ]
+
+      400:
+        description: The query for schemas has bad syntax.
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 400,
+                  "message": "There are validation problems, see details section for more information",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html",
+                  "type": "validation_violation",
+                  "details": [
+                      {
+                          "field": "pageNumber",
+                          "message": "must be a positive number",
+                          "type": "invalid_query_parameter"
+                      }
+                  ]
+              }
+            schema: errorMessage
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+  delete:
+    description: |
+      Deletes all schemas for a given tenant. <br>
+      <br/> **Security / Access Control:** <br/>To access this method, an access token must be issued for the tenant with the <b>hybris.schema_admin</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    responses:
+      204:
+        description: The request succeeded and all schemas have been deleted.
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+/{tenant}/{schema}:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+    schema:
+      type: string
+      description: Name of the schema stored for the given tenant.
+      required: true
+  is: [ oauth2 ]
+  get:
+    description: |
+      Gets the schema file. <br/> <br/> **Security / Access Control:** <br/> Does not require access token.
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    responses:
+      200:
+        description: Returns the schema.
+        body:
+          application/json:
+            example: |
+              {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "title": "Product",
+                  "description": "A product from hybris' catalog",
+                  "type": "object"
+              }
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: The schema does not exist.
+        body:
+          application/json:
+            schema: errorMessage
+  post:
+    is: [ creatable, updateable ]
+    description: |
+      Creates a new schema file. <br/> <br/> **Security / Access Control:** <br/>To access this method, access token must be issued for <b>tenant</b> and have <b>hybris.schema_manage</b> scope to manage this resource.
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    body:
+      application/json:
+        example: |
+          {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "title": "Product",
+              "description": "A product from hybris' catalog",
+              "type": "object"
+          }
+    responses:
+      201:
+        description: |
+          The request has been fulfilled and resulted in a new resource being created.
+
+        body:
+          application/json:
+            schema: resourceLocation
+        headers:
+          Location:
+            description: |
+              URI of created resource.
+
+            displayName: Location
+            type: string
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      409:
+        description: |
+          Data modification failed. Unique index violation.
+
+        body:
+          application/json:
+            schema: errorMessage
+/{tenant}/{schema}/metadata:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+    schema:
+      type: string
+      required: true
+  is: [ oauth2 ]
+  get:
+    description: |
+      Returns the metadata of a given schema.
+      <br/> <br/> **Security / Access Control:** <br/>To access this method, an access token must be issued for the tenant with the <b>hybris.schema_view</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    responses:
+      200:
+        description: |
+          Return metadata associated with the given schema.
+
+        body:
+          application/json:
+            schema: systemUserMetadata
+            example: |
+              {
+                  "id": "uk_invoice_schema.json",
+                  "metadata": {
+                      "title": "UKinvoice",
+                      "description": "Schema for UK invoice"
+                  }
+              }
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          The schema has not been found.
+
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                  "status": 404,
+                  "type": "element_resource_non_existing",
+                  "message": "Schema with id 'comicSchema.v1.json' in tenant 'mycomicsshop' has not been found.",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+  put:
+    description: |
+      Updates metadata stored along with the schema by replacing it.
+      The metadata format is simple key-value pairs. Both keys and values must be strings and keys cannot contain any special characters like "." or "$".
+      <br/> <br/> **Security / Access Control:** <br/>To access this method, access token must be issued for <b>tenant</b> and have <b>hybris.schema_manage</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    body:
+      application/json:
+        schema: keyValues
+        example: |
+          {
+              "title": "UKinvoice",
+              "description": "Schema for UK invoice"
+          }
+    responses:
+      200:
+        description: |
+          Update of metadata succeeded.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 200,
+                  "message": "Operation succeeded"
+              }
+      400:
+        description: The provided metadata is invalid.
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                  "status": 400,
+                  "type": "validation_violation",
+                  "message": "Invalid payload is given ...",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          The schema has not been found.
+
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                  "status": 404,
+                  "type": "element_resource_non_existing",
+                  "message": "Schema with id 'comicSchema.v1.json' in tenant 'mycomicsshop' has not been found.",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+/{tenant}/{schema}/tags:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+    schema:
+      type: string
+      description: Name of the schema stored for the given tenant.
+      required: true
+  is: [ oauth2 ]
+  get:
+    description: |
+      Get a list of all tags with all distinct values for a particular schema.
+      <br/> <br/> **Security / Access Control:** <br/>To access this method, an access token must be issued for the tenant with the <b>hybris.schema_view</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    responses:
+      200:
+        description: |
+          The request succeeded.
+
+        body:
+          application/json:
+            schema: schemasData
+            example: |
+              [{
+                  "id": "schema1.json",
+                  "tags": {
+                      "branches": [
+                          "apparel",
+                          "electronics",
+                          "food"
+                      ],
+                      "documents": [
+                          "product",
+                          "category"
+                      ]
+                  }
+              }]
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          There is no object with the given ID.
+
+        body:
+          application/json:
+            schema: errorMessage
+/{tenant}/{schema}/tags/{tag}:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+    schema:
+      type: string
+      description: Name of the schema stored for the given tenant.
+      required: true
+    tag:
+      type: string
+      description: |
+        Name of the tag attribute to which tags will be added or removed from.
+      required: true
+  is: [ oauth2 ]
+  post:
+    description: |
+      Append several tags values to a schema.
+      Tags are added only if they are not already added.
+      <br/> <br/> **Security / Access Control:** <br/>To access this method, access token must be issued for <b>tenant</b> and have <b>hybris.schema_manage</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    queryParameters:
+      tags:
+        type: string
+        description: |
+          Defines the values that should be appended to the array. Values are separated by commas.
+
+        example: apparel, electronics, food
+        required: true
+    responses:
+      200:
+        description: The request succeeded.
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          There is no object with the given ID.
+
+        body:
+          application/json:
+            schema: errorMessage
+  delete:
+    description: |
+      Removes tags from a schema. <br/> <br/> **Security / Access Control:** <br/>To access this method, access token must be issued for <b>tenant</b> and have <b>hybris.schema_manage</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    queryParameters:
+      tags:
+        type: string
+        description: |
+          Defines the tag values that should be deleted. Tag values are separated by commas.
+
+        example: electronics, food
+        required: true
+      removeEmpty:
+        type: boolean
+        description: |
+          A flag to control whether the empty tag attribute should be removed from the document. Default value is false.
+
+        example: false
+        required: false
+    responses:
+      204:
+        description: The request succeeded.
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          There is no object with the given ID.
+
+        body:
+          application/json:
+            schema: errorMessage
+/{tenant}/all/tagvalues:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+  is: [ oauth2, paged ]
+  get:
+    description: |
+      Returns a list of all tags with their distinct values. The result is based on all tenant's schemas and it is eventually consistent, which means it may be outdated as aggregation does not run on every GET request.
+      <br/> <br/> **Security / Access Control:** <br/>To access this method, access token must be issued for <b>tenant</b> and have <b>hybris.schema_view</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    queryParameters:
+      pageNumber:
+        type: integer
+        description: |
+          The page number to be retrieved where the size of the pages must be specified by the pageSize parameter.
+          The number of the first page is 1.
+
+        minimum: 1
+        example: 1
+        default: 1
+        required: false
+      pageSize:
+        type: integer
+        description: |
+          The number of documents being retrieved on the page.
+
+        minimum: 1
+        example: 16
+        default: 16
+        required: false
+    responses:
+      200:
+        description: |
+          The request succeeded. Returns a list of tags with associated distinct values.
+
+        headers:
+          Link:
+            description: |
+              Link to the current page, the next page and the previous page. Marked accordingly with *rel* **self**, *rel* **next** and *rel* **prev**. The syntax must be conform to [RFC-5988](https://tools.ietf.org/html/rfc5988).
+              The link to the current page (**self**) is required and must be provided always.
+              The link to the next page (**next**) is optional. If not present, the next page is not available, as the current page is the last page of the result.
+              The link to the previous page (**prev**) is optional. If not present, the previous page is not available, as the current page is the first page of the result.
+
+            example: |
+              '<http://sample.com?pageNumber=2&pageSize=10>; rel="self", <http://sample.com?pageNumber=3&pageSize=10>; rel="next"'
+            required: true
+            repeat: true
+            type: string
+            displayName: Link
+        body:
+          application/json:
+            schema: appData
+            example: |
+              [
+                {"key": "attribute1", "values": ["1","2"]},
+                {"key": "attribute2", "values": ["value1","value2"]}
+              ]
+
+      400:
+        description: |
+          Request was syntactically incorrect. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 400,
+                  "message": "There are validation problems, see details section for more information",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html",
+                  "type": "validation_violation",
+                  "details": [
+                      {
+                          "field": "pageNumber",
+                          "message": "must be a positive number",
+                          "type": "invalid_query_parameter"
+                      }
+                  ]
+              }
+            schema: errorMessage
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          There is no schema for the given tenant.
+
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                "type": "severe",
+                "status": 123,
+                "error": {
+                  "message" : "There are no schemas to aggregate.",
+                  "code" : "404"
+                }
+              }
+
+      503:
+        description: |
+          The system is aggregating tags and their values. Please wait for the process to complete.
+
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                "type": "severe",
+                "status": 333,
+                "error": {
+                  "message" : "The current data is outdated and a new aggregation is running. Please wait for the process to complete",
+                  "code" : "503"
+                }
+              }
+
+/{tenant}/all/tagvalues/{tag}:
+  uriParameters:
+    tenant:
+      type: string
+      description: |
+        The tenant string is the project's Identifier from the Builder. Must match the project that is associated with the access token in the Authorization header.
+      pattern: "[a-z][a-z0-9]+"
+      required: true
+    tag:
+      type: string
+      description: Name of the tag attribute whose values will be aggregated.
+      required: true
+  is: [ oauth2 ]
+  get:
+    description: |
+      Return distinct values for the given tag from all schemas. The result is eventually consistent, which means it may be outdated because the aggregation does not run on every GET request.
+      <br/> <br/> **Security / Access Control:** <br/>To access this method, an access token must be issued for the tenant with the <b>hybris.schema_view</b> scope to manage this resource.
+
+    headers:
+      Authorization:
+        type: string
+        description: |
+          Used to send a valid OAuth2 access token.
+
+        example: Bearer access_token
+        required: true
+    responses:
+      200:
+        description: |
+          The request succeeded. Return distinct values for given tag.
+
+        body:
+          application/json:
+            schema: appData
+            example: |
+              [
+                  "value1",
+                  "value2"
+              ]
+      401:
+        description: |
+          Given request is unauthorized. Bad or expired token. Reauthenticate
+          the user. Any details will be provided within the response payload.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 401,
+                  "message": "Authorization: Unauthorized. Bearer TOKEN is invalid",
+                  "type": "insufficient_credentials",
+                  "moreInfo": "https://api.beta.yaas.io/patterns/errortypes.html"
+              }
+            schema: errorMessage
+      403:
+        description: |
+          Evaluated request scopes in access token are not sufficient and do not match required scopes.
+
+        body:
+          application/json:
+            example: |
+              {
+                  "status": 403,
+                  "message": "Given request does not have required scopes in access token. It is not authorized to perform this operation.",
+                  "type": "insufficient_permissions"
+              }
+            schema: errorMessage
+      404:
+        description: |
+          Tag was not found.
+
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                "type": "severe",
+                "status": 404,
+                "error": {
+                  "message" : "Given field was not found.",
+                  "code" : "404"
+                }
+              }
+      503:
+        description: |
+          The system is performing an update on the tag values list. Please wait for a few moments.
+
+        body:
+          application/json:
+            schema: errorMessage
+            example: |
+              {
+                "type": "severe",
+                "status": 503,
+                "error": {
+                  "message" : "The current data is outdated and a new aggregation is running. Please wait for the process to complete.",
+                  "code" : "503"
+                }
+              }
