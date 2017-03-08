@@ -14,12 +14,20 @@ npm install yaas-api-schema-v1 --save
 
 ### TypeScript
 ```ts
-import YaasApiSchemaV1 from 'yaas-api-schema-v1';
+import {YaasApiSchemaV1} from 'yaas-api-schema-v1';
 ...
 constructor(..) {
   this.yaasApiSchemaV1 = new YaasApiSchemaV1({});
 }
 ```
+
+To support multiple versions of the API, it is recommended to alias the import so it can easily be mapped to a later API version - and, due to the nature of Typescript, 
+you should be alerted on API signature changes already at compile time:
+
+ ```ts
+import {YaasApiSchemaV1 as YaasApiSchema} from 'yaas-api-schema-v1';
+ ```
+
 
 ### JS (Legacy)
 API skeleton as it would be produced by MuleSoft's [raml-javascript-generator](https://github.com/mulesoft-labs/raml-javascript-generator) JS generator is shipped for reference and to ease migrations:
