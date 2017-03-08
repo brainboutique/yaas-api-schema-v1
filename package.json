@@ -1,6 +1,6 @@
 {
   "name": "yaas-api-schema-v1",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "TypeScript API client-lib for YAAS Schema based on (fixed) version on Hybris SAP published API RAML, see https://devportal.yaas.io/services/schema/v1/ [Auto-generated using raml-typescript-generator]",
   "main": "./dist/index.js",
   "types": "./dist/index",
@@ -13,7 +13,8 @@
     "prepare": "typings install",
     "compile": "tsc",
     "copyLegacy": "copyfiles -f src/*.js dist",
-    "build": "npm run prepare && npm run compile && npm run copyLegacy"
+    "build": "npm run prepare && npm run compile && npm run copyLegacy",
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "@reactivex/rxjs": "^5.2.0",
